@@ -1,5 +1,6 @@
 package com.vanphuc0503.mock_data
 
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -12,6 +13,13 @@ import org.junit.Assert.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+        runBlocking {
+            print(MockData.fakeData<Vanh>())
+        }
     }
 }
+
+data class Vanh(
+    val a: Int,
+    @StringFaker(length = 99) val b: String,
+)
