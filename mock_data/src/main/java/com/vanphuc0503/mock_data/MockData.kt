@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.util.*
 import kotlin.random.asKotlinRandom
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
@@ -55,6 +56,29 @@ object MockData {
         val jsonAdapter = moshi.adapter(T::class.java)
         val listField = T::class.memberProperties
         callback.invoke(convertData(jsonAdapter, listField, data, times, timesRepeat))
+    }
+
+    inline fun <reified T> fakeData(): T? {
+        var fakeData: T? = null
+
+        val clazz = T::class.java
+        clazz.declaredFields.forEach { field ->
+            if(field.type.isAssignableFrom(String::class.java)) {
+                field.getAnnotation(StringFaker::class.java)?.let { fakerNotation ->
+                    val length = fakerNotation.length
+                    var generateString = ""
+                    repeat(length) {
+                        generateString += (97..122).random().toChar()
+                    }
+
+                    clazz.constructors.forEach {
+                        fakeData = it.newInstance((0..1000).random(), generateString) as T?
+                    }
+                }
+            }
+        }
+
+        return fakeData
     }
 
     @SuppressLint("CheckResult")
@@ -132,3 +156,9 @@ object MockData {
         }
     }
 }
+
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class StringFaker(
+    val length: Int = 10
+)
