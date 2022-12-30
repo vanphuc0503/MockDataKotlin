@@ -14,12 +14,13 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         runBlocking {
-            print(MockData.fakeData<Vanh>())
+            MockData.fakeData<Vanh>()
         }
     }
 }
 
 data class Vanh(
     val a: Int,
-    @StringFaker(length = 99) val b: String,
+    val b: String,
+    val c: Char
 )
